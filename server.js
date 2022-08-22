@@ -3,7 +3,7 @@ const app = express()
 const cors = require('cors')
 
 const sqlite3 = require('sqlite3').verbose()
-const db = new sqlite3.Database('MyDB.db')
+const db = new sqlite3.Database('./db/MyDB.db')
 
 const jwt = require('jsonwebtoken')
 
@@ -111,36 +111,36 @@ app.use(cors({
   credentials: true
 }))
 app.use(express.json())
-// app.use(express.static(path.join(__dirname, process.env.FRONT_URL)))
+app.use(express.static(path.join(__dirname, process.env.FRONT_URL)))
 
-// const routes = ['users', 'groups', 'modify', 'new']
-// app.get('/', (req,res) => {
-//   res.sendFile(path.join(__dirname, process.env.FRONT_URL+'/index.html')) // Route principale, page d'accueil
-// })
-// routes.map(item => 
-//   app.get('/'+item, (req, res) => {
-//     res.sendFile(path.join(__dirname, process.env.FRONT_URL+'/'+item+'.html')) // Différentes routes de l'application, permet le refresh de la page
-//   })
-// )
+const routes = ['actus', 'amje', 'birse', 'calendar', 'cvis', 'events', 'liens', 'strass']
+app.get('/', (req,res) => {
+  res.sendFile(path.join(__dirname, process.env.FRONT_URL+'/index.html')) // Route principale, page d'accueil
+})
+routes.map(item => 
+  app.get('/'+item, (req, res) => {
+    res.sendFile(path.join(__dirname, process.env.FRONT_URL+'/'+item+'.html')) // Différentes routes de l'application, permet le refresh de la page
+  })
+)
 
 app.get('/images/:img', (req, res) => {
   res.sendFile(path.join(__dirname, './images/'+req.params.img))
 })
 
-app.use('/auth', authRoute)
-app.use('/publis', auth, publisRoute)
-app.use('/calendar', auth, calendarRoute)
-app.use('/messages', auth, messagesRoute)
-app.use('/events', auth, eventsRoute)
-app.use('/liens', auth, liensRoute)
-app.use('/search', auth, searchRoute)
-app.use('/strass', auth, strassRoute)
-app.use('/horaires', auth, horairesRoute)
-app.use('/cvis', auth, cvisRoute)
+app.use('/api/auth', authRoute)
+app.use('/api/publis', auth, publisRoute)
+app.use('/api/calendar', auth, calendarRoute)
+app.use('/api/messages', auth, messagesRoute)
+app.use('/api/events', auth, eventsRoute)
+app.use('/api/liens', auth, liensRoute)
+app.use('/api/search', auth, searchRoute)
+app.use('/api/strass', auth, strassRoute)
+app.use('/api/horaires', auth, horairesRoute)
+app.use('/api/cvis', auth, cvisRoute)
 
-// app.get('*', (req, res) => 
-//   res.sendFile(path.join(__dirname, process.env.FRONT_URL+'/404.html')) // Route 404 si cela ne mène a rien
-// )
+app.get('*', (req, res) => 
+  res.sendFile(path.join(__dirname, process.env.FRONT_URL+'/404.html')) // Route 404 si cela ne mène a rien
+)
 
 app.set('port', 4040)
 console.log('Server listening on port', app.get('port'))
