@@ -105,6 +105,7 @@ const strassRoute = require('./app/routes/strass.route.js')
 const horairesRoute = require('./app/routes/horaires.route.js')
 const cvisRoute = require('./app/routes/cvis.route.js')
 
+app.options('*', cors())
 app.use(cors({
   methods: ['GET','POST','DELETE','PUT'],
   origin: process.env.ALLOW_ORIGIN,
