@@ -59,10 +59,8 @@ const setToken = ((req, res) => {
       const group = data[0][0]
       const user = data[1][0]
 
-      userUid = user.uid
-
-      if (userUid && group.memberUid.includes(userUid)) {
-        client.bind('uid=' + userUid + ', ou=people, dc=boquette, dc=fr', req.body.password, (err) => {
+      if (user.uid && group.memberUid.includes(userUid)) {
+        client.bind('uid=' + user.uid + ', ou=people, dc=boquette, dc=fr', req.body.password, (err) => {
           if (err == undefined) {
             const xsrfToken = crypto.randomBytes(64).toString('hex')
             const accessToken = generateAccessToken(userUid, xsrfToken)
