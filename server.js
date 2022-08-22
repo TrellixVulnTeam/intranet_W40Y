@@ -142,6 +142,6 @@ app.get('*', (req, res) =>
   res.sendFile(path.join(__dirname, process.env.FRONT_URL+'/404.html')) // Route 404 si cela ne mène a rien
 )
 
-app.set('port', 4040)
+app.set('port', 5050)
 console.log('Server listening on port', app.get('port'))
 app.listen(app.get('port'))
