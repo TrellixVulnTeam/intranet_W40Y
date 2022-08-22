@@ -64,7 +64,7 @@ const setToken = ((req, res) => {
           client.bind('uid=' + user.uid + ', ou=people, dc=boquette, dc=fr', req.body.password, (err) => {
             if (err == undefined) {
               const xsrfToken = crypto.randomBytes(64).toString('hex')
-              const accessToken = generateAccessToken(userUid, xsrfToken)
+              const accessToken = generateAccessToken(user.uid, xsrfToken)
 
               console.log('binded')
               res.cookie('access_token', accessToken, {
