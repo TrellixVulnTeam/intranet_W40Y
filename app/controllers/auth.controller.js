@@ -59,25 +59,27 @@ const setToken = ((req, res) => {
       const group = data[0][0]
       const user = data[1][0]
 
-      if (user.uid && group.memberUid.includes(userUid)) {
-        client.bind('uid=' + user.uid + ', ou=people, dc=boquette, dc=fr', req.body.password, (err) => {
-          if (err == undefined) {
-            const xsrfToken = crypto.randomBytes(64).toString('hex')
-            const accessToken = generateAccessToken(userUid, xsrfToken)
+      if (user.uid) {
+        if (group.memberUid.includes(user.uid)) {
+          client.bind('uid=' + user.uid + ', ou=people, dc=boquette, dc=fr', req.body.password, (err) => {
+            if (err == undefined) {
+              const xsrfToken = crypto.randomBytes(64).toString('hex')
+              const accessToken = generateAccessToken(userUid, xsrfToken)
 
-            console.log('binded')
-            res.cookie('access_token', accessToken, {
-              httpOnly: true,
-              secure: false,
-              maxAge: 182*24*60*60*1000
-            })
-            res.send({
-              xsrfToken
-            })
-          } else {
-            res.status(401).send("Invalid Credentials")
-          }
-        })
+              console.log('binded')
+              res.cookie('access_token', accessToken, {
+                httpOnly: true,
+                secure: false,
+                maxAge: 182*24*60*60*1000
+              })
+              res.send({
+                xsrfToken
+              })
+            } else {
+              res.status(401).send("Invalid Credentials")
+            }
+          })
+        }
       } else {
         res.status(401).send("Invalid Credentials")
       }
