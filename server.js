@@ -107,7 +107,7 @@ const cvisRoute = require('./app/routes/cvis.route.js')
 
 app.use(cors({
   methods: ['GET','POST','DELETE','PUT'],
-  origin: process.env.ALLOW_ORIGIN,
+  origin: '*',
   credentials: true
 }))
 app.use(express.json())
