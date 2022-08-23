@@ -124,6 +124,9 @@ routes.map(item =>
   })
 )
 
+app.get('/api/img/:img', (req, res) => {
+  res.sendFile(path.join(__dirname, './out/img/'+req.params.img))
+})
 app.get('/api/images/:img', (req, res) => {
   res.sendFile(path.join(__dirname, './images/'+req.params.img))
 })

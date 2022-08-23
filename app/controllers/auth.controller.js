@@ -53,13 +53,13 @@ const setToken = ((req, res) => {
     client = connexion()
     Promise.all([
       searchLDAP(client, '(cn=pg)', 'ou=groups, dc=boquette, dc=fr'),
-      searchLDAP(client, '(description='+req.body.username+')', 'ou=people, dc=boquette, dc=fr')
+      searchLDAP(client, '(|(description='+req.body.username+')(uid='+req.body.username+'))', 'ou=people, dc=boquette, dc=fr')
     ])
     .then(data => {
       const group = data[0][0]
       const user = data[1][0]
 
-      if (user.uid) {
+      if (user) {
         if (group.memberUid.includes(user.uid)) {
           client.bind('uid=' + user.uid + ', ou=people, dc=boquette, dc=fr', req.body.password, (err) => {
             if (err == undefined) {
