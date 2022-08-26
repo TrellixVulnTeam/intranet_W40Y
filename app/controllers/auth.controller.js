@@ -37,7 +37,6 @@ const setToken = ((req, res) => {
               const accessToken = generateAccessToken(user.uid, xsrfToken)
 
               console.log('binded')
-              client.unbind()
               res.cookie('access_token', accessToken, {
                 httpOnly: true,
                 secure: false,
@@ -47,10 +46,10 @@ const setToken = ((req, res) => {
                 xsrfToken
               })
             } else {
-              client.unbind()
               res.status(401).send("Invalid Credentials")
             }
           })
+          client.unbind()
         }
       } else {
         res.status(401).send("Invalid Credentials")
