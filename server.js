@@ -5,10 +5,6 @@ const cors = require('cors')
 const sqlite3 = require('sqlite3').verbose()
 const db = new sqlite3.Database('./db/MyDB.db')
 
-const jwt = require('jsonwebtoken')
-
-var ldap = require('ldapjs')
-
 const path = require('path')
 
 require('dotenv').config()
@@ -42,58 +38,6 @@ db.serialize(function () {
 // db.all('SELECT * FROM pages') // Vérifier si une table existe
 // db.all('DROP TABLE messages') // Détruire une table
 
-const auth = ((req, res, next) => {
-  try {
-    const { headers } = req
-    
-    if (!headers.cookie) {
-      return res.status(401).send("Unable to find Cookies")
-    }
-
-    const accessToken = headers.cookie.replace('access_token=', '')
-
-    if (!headers || !headers['x-xsrf-token']) {
-      return res.status(401).send("Invalid Access Token")
-    }
-    
-    const xsrfToken = headers['x-xsrf-token']
-
-    const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
-
-    if (xsrfToken !== decodedToken.xsrfToken) {
-      return res.status(401).send("Invalid Credentials")
-    }
-
-    const userId = decodedToken.data
-
-    const client = ldap.createClient({
-      url: process.env.LDAP_IP
-    })
-    client.on('error', (err) => {
-      console.log("Connexion error : " + err)
-    })
-
-    var opts = {
-      filter: '(uid='+userId+')',
-      scope: 'sub'
-    }
-    client.search('ou=people, dc=boquette, dc=fr', opts, (err, response) => {
-      if (err == undefined) {
-        response.on('searchEntry', (entry) => {
-          if (entry.object == undefined) {
-            return res.status(401).send("Invalid Credentials")
-          }
-        })
-      }
-    })
-        
-    return next()
-  } catch (err) {
-    console.log(err)
-    return res.status(500).send("Internal Authentification Server Error")
-  }
-})
-
 const authRoute = require('./app/routes/auth.route.js')
 const publisRoute = require('./app/routes/publis.route.js')
 const calendarRoute = require('./app/routes/calendar.route.js')
@@ -104,6 +48,7 @@ const searchRoute = require('./app/routes/search.route.js')
 const strassRoute = require('./app/routes/strass.route.js')
 const horairesRoute = require('./app/routes/horaires.route.js')
 const cvisRoute = require('./app/routes/cvis.route.js')
+const auth = require('./app/middleware/auth.middleware')
 
 app.options('*', cors())
 app.use(cors({

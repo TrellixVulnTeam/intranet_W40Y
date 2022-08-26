@@ -1,23 +1,13 @@
-var ldap = require('ldapjs')
+var ldap = require('../ldap/ldap')
 
 require('dotenv').config()
-
-const connexion = (() => {
-  const client = ldap.createClient({
-    url: process.env.LDAP_IP
-  })
-  client.on('error', (err) => {
-    console.log("Connexion error : " + err);
-  })
-  return client
-})
 
 const get1Strass = ((req, res) => {
   try {
     var strass = req.params.strassID.toLowerCase()
 
-    client = connexion()
-    searchLDAP(client, '(bouls=*)', 'ou=people, dc=boquette, dc=fr')
+    client = ldap.connexion()
+    ldap.searchLDAP(client, '(bouls=*)', 'ou=people, dc=boquette, dc=fr')
     .then(output => {
       var users = []
       for (let i = 0; i < output.length; i++) {
@@ -47,33 +37,13 @@ const get1Strass = ((req, res) => {
 
 const getStrass = ((req, res) => {
   try {
-    client = connexion()
-    searchLDAP(client, '(strass=TRUE)', 'ou=groups, dc=boquette, dc=fr')
+    client = ldap.connexion()
+    ldap.searchLDAP(client, '(strass=TRUE)', 'ou=groups, dc=boquette, dc=fr')
     .then(output => res.send(output))
   } catch (err) {
     res.sendStatus(500)
   }
 })
-
-const searchLDAP = function(client, filter, dn) {
-  return new Promise((resolve, reject) => {
-      var opts = {
-          filter: filter,
-          scope: 'sub'
-      }
-      client.search(dn, opts, (err, response) => {
-          if (!err) {
-              var output = []
-              response.on('searchEntry', (entry) => {
-                  output.push(entry.object)
-              })
-              response.on('end', () => {
-                  resolve(output)
-              })
-          }
-      })
-  })
-}
 
 module.exports = {
     getStrass,

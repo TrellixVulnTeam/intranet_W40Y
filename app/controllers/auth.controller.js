@@ -1,40 +1,8 @@
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
-
-var ldap = require('ldapjs')
+const ldap = require('../ldap/ldap')
 
 require('dotenv').config()
-
-const connexion = (() => {
-  const client = ldap.createClient({
-    url: process.env.LDAP_IP
-  })
-  client.on('error', (err) => {
-    console.log("Connexion error : " + err)
-  })
-  return client
-})
-
-const searchLDAP = function(client, filter, dn) {
-  return new Promise((resolve, reject) => {
-      var opts = {
-          filter: filter,
-          scope: 'sub'
-      }
-      client.search(dn, opts, (err, response) => {
-          if (!err) {
-              var output = []
-              response.on('searchEntry', (entry) => {
-                  output.push(entry.object)
-              })
-              response.on('end', () => {
-                  resolve(output)
-              })
-          }
-      })
-  })
-}
-
 
 function generateAccessToken(user, xsrfToken) {
   return jwt.sign(
@@ -50,23 +18,26 @@ const setToken = ((req, res) => {
   try {
     req.setEncoding('utf8')
 
-    client = connexion()
+    client = ldap.connexion()
     Promise.all([
-      searchLDAP(client, '(cn=pg)', 'ou=groups, dc=boquette, dc=fr'),
-      searchLDAP(client, '(|(description='+req.body.username+')(uid='+req.body.username+'))', 'ou=people, dc=boquette, dc=fr')
+      ldap.searchLDAP(client, '(cn=pg)', 'ou=groups, dc=boquette, dc=fr'),
+      ldap.searchLDAP(client, '(|(description='+req.body.username+')(uid='+req.body.username+'))', 'ou=people, dc=boquette, dc=fr')
     ])
+    .then(data => {return data})
     .then(data => {
       const group = data[0][0]
       const user = data[1][0]
 
+      client = ldap.connexion()
       if (user) {
         if (group.memberUid.includes(user.uid)) {
-          client.bind('uid=' + user.uid + ', ou=people, dc=boquette, dc=fr', req.body.password, (err) => {
+          client.bind(user.dn, req.body.password, (err) => {
             if (err == undefined) {
               const xsrfToken = crypto.randomBytes(64).toString('hex')
               const accessToken = generateAccessToken(user.uid, xsrfToken)
 
               console.log('binded')
+              client.unbind()
               res.cookie('access_token', accessToken, {
                 httpOnly: true,
                 secure: false,
@@ -76,6 +47,7 @@ const setToken = ((req, res) => {
                 xsrfToken
               })
             } else {
+              client.unbind()
               res.status(401).send("Invalid Credentials")
             }
           })
@@ -113,10 +85,10 @@ const getUser = ((req, res) => {
 
     const userId = decodedToken.data
 
-    client = connexion()
+    client = ldap.connexion()
     Promise.all([
-      searchLDAP(client, '(strass=TRUE)', 'ou=groups, dc=boquette, dc=fr'),
-      searchLDAP(client, '(uid='+userId+')', 'ou=people, dc=boquette, dc=fr')
+      ldap.searchLDAP(client, '(strass=TRUE)', 'ou=groups, dc=boquette, dc=fr'),
+      ldap.searchLDAP(client, '(uid='+userId+')', 'ou=people, dc=boquette, dc=fr')
     ])
     .then(data => {
       const groups = data[0]
