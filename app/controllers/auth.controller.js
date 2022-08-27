@@ -18,25 +18,24 @@ const setToken = ((req, res) => {
   try {
     req.setEncoding('utf8')
 
-    client = ldap.connexion()
+    var client = ldap.connexion()
     Promise.all([
       ldap.searchLDAP(client, '(cn=pg)', 'ou=groups, dc=boquette, dc=fr'),
       ldap.searchLDAP(client, '(|(description='+req.body.username+')(uid='+req.body.username+'))', 'ou=people, dc=boquette, dc=fr')
     ])
-    .then(data => {return data})
     .then(data => {
       const group = data[0][0]
       const user = data[1][0]
 
-      client = ldap.connexion()
       if (user) {
         if (group.memberUid.includes(user.uid)) {
           client.bind(user.dn, req.body.password, (err) => {
-            if (err == undefined) {
+            if (!err) {
               const xsrfToken = crypto.randomBytes(64).toString('hex')
               const accessToken = generateAccessToken(user.uid, xsrfToken)
 
               console.log('binded')
+              client.destroy()
               res.cookie('access_token', accessToken, {
                 httpOnly: true,
                 secure: false,
@@ -49,7 +48,6 @@ const setToken = ((req, res) => {
               res.status(401).send("Invalid Credentials")
             }
           })
-          client.unbind()
         }
       } else {
         res.status(401).send("Invalid Credentials")
@@ -84,7 +82,7 @@ const getUser = ((req, res) => {
 
     const userId = decodedToken.data
 
-    client = ldap.connexion()
+    var client = ldap.connexion()
     Promise.all([
       ldap.searchLDAP(client, '(strass=TRUE)', 'ou=groups, dc=boquette, dc=fr'),
       ldap.searchLDAP(client, '(uid='+userId+')', 'ou=people, dc=boquette, dc=fr')
@@ -111,6 +109,7 @@ const getUser = ((req, res) => {
         :undefined
       })
 
+      client.destroy()
       res.send(finalGroups)
     })
   } catch (err) {

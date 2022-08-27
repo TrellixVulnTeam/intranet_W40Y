@@ -26,9 +26,10 @@ const auth = ((req, res, next) => {
     
         const userId = decodedToken.data
 
-        client = ldap.connexion()
+        var client = ldap.connexion()
         ldap.searchLDAP(client, '(uid='+userId+')', 'ou=people, dc=boquette, dc=fr')
         .then(output => {
+            client.destroy()
             if (output) {
                 return next()
             } else {

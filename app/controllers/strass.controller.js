@@ -6,7 +6,7 @@ const get1Strass = ((req, res) => {
   try {
     var strass = req.params.strassID.toLowerCase()
 
-    client = ldap.connexion()
+    var client = ldap.connexion()
     ldap.searchLDAP(client, '(bouls=*)', 'ou=people, dc=boquette, dc=fr')
     .then(output => {
       var users = []
@@ -28,6 +28,7 @@ const get1Strass = ((req, res) => {
           }
         }
       }
+      client.destroy()
       res.send(users)
     })
   } catch (err) {
@@ -37,9 +38,12 @@ const get1Strass = ((req, res) => {
 
 const getStrass = ((req, res) => {
   try {
-    client = ldap.connexion()
+    var client = ldap.connexion()
     ldap.searchLDAP(client, '(strass=TRUE)', 'ou=groups, dc=boquette, dc=fr')
-    .then(output => res.send(output))
+    .then(output => {
+      client.destroy()
+      res.send(output)
+    })
   } catch (err) {
     res.sendStatus(500)
   }

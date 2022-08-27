@@ -25,7 +25,6 @@ const searchLDAP = function(client, filter, dn) {
                     output.push(entry.object)
                 })
                 response.on('end', () => {
-                    client.destroy()
                     resolve(output)
                 })
             }

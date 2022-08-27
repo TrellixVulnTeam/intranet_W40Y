@@ -59,7 +59,7 @@ app.use(cors({
 app.use(express.json())
 app.use(express.static(path.join(__dirname, process.env.FRONT_URL)))
 
-const routes = ['actus', 'amje', 'birse', 'calendar', 'cvis', 'events', 'liens', 'strass']
+const routes = ['actus', 'birse', 'calendar', 'cvis', 'events', 'liens', 'strass']
 app.get('/', (req,res) => {
   res.sendFile(path.join(__dirname, process.env.FRONT_URL+'/index.html')) // Route principale, page d'accueil
 })
