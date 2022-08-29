@@ -13,7 +13,7 @@ const getPublisType = ((req, res) => {
       }
       else {
         if (rows.length === 0) {
-          output.push({ id: 0, title: "Aucun Contenu", content: "Malheureusement, cette page n'a pas encore été éditée par la strass concernée...", strass:""})
+          output.push({ id: 0, title: "Aucun Contenu", content: "Malheureusement, cette page n'a pas encore été éditée par la strass concernée..."})
         }
         else {
           rows.forEach(function (row) {
@@ -40,7 +40,7 @@ const getPublisStrass = ((req, res) => {
       }
       else {
         if (rows.length === 0) {
-          output.push({ id: 0, title: "Aucun Contenu", content: "Malheureusement, cette strass n'a rien publié pour le moment...", strass:""})
+          output.push({ id: 0, title: "Aucun Contenu", content: "Malheureusement, cette strass n'a rien publié pour le moment..."})
         }
         else {
           rows.forEach(function (row) {
@@ -110,7 +110,7 @@ const createPubli = ((req, res) => {
   try {
     req.setEncoding('utf8')
 
-    db.run('INSERT INTO publis(title, content, type, strass, strassName) VALUES(?, ?, ?, ?, ?)', [req.body.title, req.body.content, req.body.type, req.body.strass.cn, req.body.strass.description], (err, row) => {
+    db.run('INSERT INTO publis(title, content, type, date, strass, strassName) VALUES(?, ?, ?, ?, ?, ?)', [req.body.title, req.body.content, req.body.type, req.body.date, req.body.strass.cn, req.body.strass.description], (err, row) => {
       if (err) {
         console.log(err)
         res.sendStatus(500)

@@ -45,6 +45,7 @@ const setToken = ((req, res) => {
                 xsrfToken
               })
             } else {
+              client.destroy()
               res.status(401).send("Invalid Credentials")
             }
           })

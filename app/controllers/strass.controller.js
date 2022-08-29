@@ -12,10 +12,24 @@ const get1Strass = ((req, res) => {
       var users = []
       for (let i = 0; i < output.length; i++) {
         var user = output[i]
-        var bouls = user.bouls.split(';')
+        var bouls = user.bouls
+        
+        if (typeof(bouls) == 'object') {
+          for (let j = 0; j < bouls.length; j++) {
+            var boulsDesc = bouls[j].split(':')
 
-        for (let j = 0; j < bouls.length; j++) {
-          var boulsDesc = bouls[j].split(':')
+            if (boulsDesc[0].toLowerCase() == strass && user.description.includes('221')) {
+              users.push({
+                cn: user.cn,
+                sn: user.sn,
+                givenName: user.givenName,
+                displayName: user.displayName,
+                bouls: boulsDesc[1]
+              })
+            }
+          }
+        } else {
+          var boulsDesc = bouls.split(':')
 
           if (boulsDesc[0].toLowerCase() == strass && user.description.includes('221')) {
             users.push({
