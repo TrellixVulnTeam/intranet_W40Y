@@ -5,7 +5,7 @@ const getSearch = ((req, res) => {
   try {
     var word = req.params.searchWord.toLowerCase()
 
-    db.all('SELECT * FROM publis', (err, rows) => {
+    db.all('SELECT * FROM publis ORDER BY id DESC', (err, rows) => {
         var output = []
         if (err) {
             console.log(err)

@@ -34,7 +34,6 @@ const setToken = ((req, res) => {
               const xsrfToken = crypto.randomBytes(64).toString('hex')
               const accessToken = generateAccessToken(user.uid, xsrfToken)
 
-              console.log('binded')
               client.destroy()
               res.cookie('access_token', accessToken, {
                 httpOnly: true,
@@ -46,16 +45,16 @@ const setToken = ((req, res) => {
               })
             } else {
               client.destroy()
-              res.status(401).send("Invalid Credentials")
+              res.status(401).send('Utilisateur ou mot de passe invalides')
             }
           })
         }
       } else {
-        res.status(401).send("Invalid Credentials")
+        res.status(401).send('Utilisateur ou mot de passe invalides')
       }
     })
   } catch (err) {
-    res.sendStatus(500)
+    res.status(500).send("Erreur lors de l'authentification")
   }
 })
 
@@ -64,13 +63,13 @@ const getUser = ((req, res) => {
     const { headers } = req
     
     if (!headers.cookie) {
-      return res.status(401).send("Unable to find Cookies")
+      return res.status(402).send('Cookies invalides')
     }
 
     const accessToken = headers.cookie.replace('access_token=', '')
 
     if (!headers || !headers['x-xsrf-token']) {
-      return res.status(401).send("Invalid Access Token")
+      return res.status(402).send('Token invalide')
     }
     
     const xsrfToken = headers['x-xsrf-token']
@@ -78,7 +77,7 @@ const getUser = ((req, res) => {
     const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
 
     if (xsrfToken !== decodedToken.xsrfToken) {
-      return res.status(401).send("Invalid Credentials")
+      return res.status(402).send('Token invalide')
     }
 
     const userId = decodedToken.data
@@ -93,7 +92,7 @@ const getUser = ((req, res) => {
       const user = data[1][0]
 
       if (!user) {
-        return res.status(401).send("Invalid Credentials")
+        return res.status(402).send("Utilisateur invalide")
       }
 
       var finalGroups = [{
@@ -114,7 +113,7 @@ const getUser = ((req, res) => {
       res.send(finalGroups)
     })
   } catch (err) {
-    res.sendStatus(500)
+    res.status(500).send("Erreur lors de l'authentification")
   }
 })
 

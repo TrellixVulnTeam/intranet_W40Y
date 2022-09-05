@@ -34,7 +34,27 @@ db.serialize(function () {
 // db.run('UPDATE horaires SET jours=? WHERE id=?', [['9h - 21h', '9h - 21h', '9h - 21h', '9h - 21h', '9h - 21h', '9h - 21h', '9h - 21h'], '3'])
 // db.run('ALTER TABLE publis ADD strassName TEXT') // AJouter une colonne
 // db.run('ALTER TABLE sports DROP date') // Retirer une colonne
-// db.run('DELETE FROM events WHERE id=9')
+// db.run('DELETE FROM publis WHERE id=19')
+// app.get('/publis', (req, res) => {
+//   db.all('SELECT * FROM publis', (err, rows) => {
+//     var output = []
+//     if (err) {
+//       console.log(err)
+//       res.sendStatus(500)
+//     }
+//     else {
+//       if (rows.length === 0) {
+//         output.push({ id: 0, title: "Aucun Contenu", content: "Malheureusement, cette page n'a pas encore été éditée par la strass concernée...", strass:""})
+//       }
+//       else {
+//         rows.forEach(function (row) {
+//           output.push(row.id, row.title, row.type, row.date, row.strass, '                                                         ')
+//         })
+//       }
+//       res.send(output)
+//     }
+//   })
+// })
 // db.all('SELECT * FROM pages') // Vérifier si une table existe
 // db.all('DROP TABLE messages') // Détruire une table
 
@@ -50,7 +70,7 @@ const horairesRoute = require('./app/routes/horaires.route.js')
 const cvisRoute = require('./app/routes/cvis.route.js')
 const auth = require('./app/middleware/auth.middleware')
 
-app.options('*', cors())
+// app.options('*', cors())
 app.use(cors({
   methods: ['GET','POST','DELETE','PUT'],
   origin: process.env.ALLOW_ORIGIN,
