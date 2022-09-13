@@ -28,27 +28,34 @@ const setToken = ((req, res) => {
       const user = data[1][0]
 
       if (user) {
-        if (group.memberUid.includes(user.uid)) {
-          client.bind(user.dn, req.body.password, (err) => {
-            if (!err) {
-              const xsrfToken = crypto.randomBytes(64).toString('hex')
-              const accessToken = generateAccessToken(user.uid, xsrfToken)
+        client.bind(user.dn, req.body.password, (err) => {
+          if (!err) {
+            const xsrfToken = crypto.randomBytes(64).toString('hex')
+            const accessToken = generateAccessToken(user.uid, xsrfToken)
 
-              client.destroy()
-              res.cookie('access_token', accessToken, {
-                httpOnly: true,
-                secure: false,
-                maxAge: 182*24*60*60*1000
-              })
+            client.destroy()
+            res.cookie('access_token', accessToken, {
+              httpOnly: true,
+              secure: false,
+              maxAge: 182*24*60*60*1000
+            })
+
+            if (group.memberUid.includes(user.uid)) {
               res.send({
-                xsrfToken
+                xsrfToken,
+                point: false
               })
             } else {
-              client.destroy()
-              res.status(401).send('Utilisateur ou mot de passe invalides')
+              res.send({
+                xsrfToken,
+                point: true
+              })
             }
-          })
-        }
+          } else {
+            client.destroy()
+            res.status(401).send('Utilisateur ou mot de passe invalides')
+          }
+        })
       } else {
         res.status(401).send('Utilisateur ou mot de passe invalides')
       }
